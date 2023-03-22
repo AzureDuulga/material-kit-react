@@ -1,30 +1,41 @@
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 // @mui
 import { Link, Stack, IconButton, InputAdornment, TextField, Checkbox } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 // components
+import axios from 'axios';
 import Iconify from '../../../components/iconify';
+import { AuthContext } from '../../../context/authContext';
 
 // ----------------------------------------------------------------------
 
 export default function LoginForm() {
   const navigate = useNavigate();
+  const { setUser } = useContext(AuthContext);
 
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
-  const handleClick = () => {
-    navigate('/dashboard', { replace: true });
+  const handleClick = async () => {
+    try {
+      const result = await axios.post('http://localhost:8000/users/login', { email, password });
+      setUser(result.data.user);
+      navigate('/dashboard', { replace: true });
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   return (
     <>
       <Stack spacing={3}>
-        <TextField name="email" label="Email address" />
+        <TextField name="email" label="Имэйл" />
 
         <TextField
           name="password"
-          label="Password"
+          label="Нууц үг"
           type={showPassword ? 'text' : 'password'}
           InputProps={{
             endAdornment: (

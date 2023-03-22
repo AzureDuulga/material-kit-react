@@ -1,5 +1,6 @@
 import { BrowserRouter } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
+import AuthProvider from './context/authContext';
 // routes
 import Router from './routes';
 // theme
@@ -15,9 +16,11 @@ export default function App() {
     <HelmetProvider>
       <BrowserRouter>
         <ThemeProvider>
-          <ScrollToTop />
-          <StyledChart />
-          <Router />
+          <AuthProvider>
+            <ScrollToTop />
+            <StyledChart />
+            <Router />
+          </AuthProvider>
         </ThemeProvider>
       </BrowserRouter>
     </HelmetProvider>

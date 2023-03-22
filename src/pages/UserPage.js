@@ -1,7 +1,8 @@
 import { Helmet } from 'react-helmet-async';
+import axios from 'axios';
 import { filter } from 'lodash';
 import { sentenceCase } from 'change-case';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 // @mui
 import {
   Card,
@@ -34,11 +35,11 @@ import USERLIST from '../_mock/user';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'name', label: 'Name', alignRight: false },
-  { id: 'company', label: 'Company', alignRight: false },
+  { id: 'title', label: 'Нэр', alignRight: false },
+  { id: 'description', label: 'Тайлбар', alignRight: false },
+  { id: 'categoryImg', label: 'Зураг', alignRight: false },
+  { id: 'categoryRating', label: 'Үнэлгээ', alignRight: false },
   { id: 'role', label: 'Role', alignRight: false },
-  { id: 'isVerified', label: 'Verified', alignRight: false },
-  { id: 'status', label: 'Status', alignRight: false },
   { id: '' },
 ];
 
@@ -146,6 +147,10 @@ export default function UserPage() {
 
   const isNotFound = !filteredUsers.length && !!filterName;
 
+  useEffect(() => {
+    axios.get('http://localhost:8000/category/');
+  });
+
   return (
     <>
       <Helmet>
@@ -155,10 +160,10 @@ export default function UserPage() {
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-            User
+            Категори
           </Typography>
           <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
-            New User
+            Шинэ Категори Үүсгэх
           </Button>
         </Stack>
 
