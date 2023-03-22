@@ -37,7 +37,7 @@ export default function DashboardAppPage() {
 
       <Container maxWidth="xl">
         <Typography variant="h4" sx={{ mb: 5 }}>
-          Сайн байна уу {user}
+          Сайн байна уу {user.name}
         </Typography>
 
         <Grid container spacing={3}>
