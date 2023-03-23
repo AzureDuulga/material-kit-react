@@ -28,7 +28,6 @@ export default function NavSection({ data = [], ...other }) {
 NavItem.propTypes = {
   item: PropTypes.object,
 };
-
 function NavItem({ item }) {
   const { title, path, icon, info } = item;
 

@@ -1,7 +1,6 @@
 import { Helmet } from 'react-helmet-async';
 import axios from 'axios';
 import { filter } from 'lodash';
-import { sentenceCase } from 'change-case';
 import { useEffect, useState } from 'react';
 // @mui
 import {
@@ -75,6 +74,7 @@ function applySortFilter(array, comparator, query) {
 }
 
 export default function UserPage() {
+  const [category, setCategory] = useState([]);
   const [open, setOpen] = useState(null);
 
   const [page, setPage] = useState(0);
@@ -87,7 +87,7 @@ export default function UserPage() {
 
   const [filterName, setFilterName] = useState('');
 
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(2);
 
   const handleOpenMenu = (event) => {
     setOpen(event.currentTarget);
@@ -144,17 +144,30 @@ export default function UserPage() {
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - USERLIST.length) : 0;
 
   const filteredUsers = applySortFilter(USERLIST, getComparator(order, orderBy), filterName);
-
+  const [fileteredCategory, setFilteredCategory] = useState([]);
   const isNotFound = !filteredUsers.length && !!filterName;
 
   useEffect(() => {
-    axios.get('http://localhost:8000/category/');
-  });
+    axios
+      .get('http://localhost:8000/category/')
+      .then((res) => {
+        console.log('CAT IRLEE', res.data.categories);
+        setCategory(res.data.categories);
+        setFilteredCategory(res.data.categories);
+      })
+      .catch((err) => {
+        console.log('Err', err);
+      });
+  }, []);
+
+  const deleteCategory = () => {
+    console.log('delete');
+  };
 
   return (
     <>
       <Helmet>
-        <title> User | Minimal UI </title>
+        <title> Azure Категори</title>
       </Helmet>
 
       <Container>
@@ -166,6 +179,7 @@ export default function UserPage() {
             Шинэ Категори Үүсгэх
           </Button>
         </Stack>
+        {!category.length && <h4>Хоосон байна</h4>}
 
         <Card>
           <UserListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
@@ -183,34 +197,28 @@ export default function UserPage() {
                   onSelectAllClick={handleSelectAllClick}
                 />
                 <TableBody>
-                  {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const { id, name, role, status, company, avatarUrl, isVerified } = row;
-                    const selectedUser = selected.indexOf(name) !== -1;
-
+                  {fileteredCategory?.map((row) => {
+                    const { _id, title, description, categoryImg, categoryRate } = row;
                     return (
-                      <TableRow hover key={id} tabIndex={-1} role="checkbox" selected={selectedUser}>
+                      <TableRow hover key={_id} tabIndex={-1} role="checkbox">
                         <TableCell padding="checkbox">
-                          <Checkbox checked={selectedUser} onChange={(event) => handleClick(event, name)} />
+                          <Checkbox checked={false} onChange={(event) => handleClick(event, title)} />
                         </TableCell>
 
                         <TableCell component="th" scope="row" padding="none">
                           <Stack direction="row" alignItems="center" spacing={2}>
-                            <Avatar alt={name} src={avatarUrl} />
+                            <Avatar alt={title} src={categoryImg} />
                             <Typography variant="subtitle2" noWrap>
-                              {name}
+                              {title}
                             </Typography>
                           </Stack>
                         </TableCell>
 
-                        <TableCell align="left">{company}</TableCell>
+                        <TableCell align="left">{description}</TableCell>
 
-                        <TableCell align="left">{role}</TableCell>
+                        <TableCell align="left">url</TableCell>
 
-                        <TableCell align="left">{isVerified ? 'Yes' : 'No'}</TableCell>
-
-                        <TableCell align="left">
-                          <Label color={(status === 'banned' && 'error') || 'success'}>{sentenceCase(status)}</Label>
-                        </TableCell>
+                        <TableCell align="left">{categoryRate}</TableCell>
 
                         <TableCell align="right">
                           <IconButton size="large" color="inherit" onClick={handleOpenMenu}>
@@ -286,12 +294,12 @@ export default function UserPage() {
       >
         <MenuItem>
           <Iconify icon={'eva:edit-fill'} sx={{ mr: 2 }} />
-          Edit
+          Засах
         </MenuItem>
 
-        <MenuItem sx={{ color: 'error.main' }}>
+        <MenuItem onClick={deleteCategory} sx={{ color: 'error.main' }}>
           <Iconify icon={'eva:trash-2-outline'} sx={{ mr: 2 }} />
-          Delete
+          Устгах
         </MenuItem>
       </Popover>
     </>
