@@ -39,7 +39,7 @@ const TABLE_HEAD = [
   { id: 'categoryImg', label: 'Зураг', alignRight: false },
   { id: 'categoryRating', label: 'Үнэлгээ', alignRight: false },
   { id: 'role', label: 'Role', alignRight: false },
-  { id: '' },
+  { id: '', label: 'Ustgah' },
 ];
 
 // ----------------------------------------------------------------------
@@ -160,8 +160,8 @@ export default function UserPage() {
       });
   }, []);
 
-  const deleteCategory = () => {
-    console.log('delete');
+  const deleteCategory = (e) => {
+    console.log(e);
   };
 
   return (
@@ -225,6 +225,38 @@ export default function UserPage() {
                             <Iconify icon={'eva:more-vertical-fill'} />
                           </IconButton>
                         </TableCell>
+                        <Popover
+                          open={Boolean(open)}
+                          anchorEl={open}
+                          onClose={handleCloseMenu}
+                          anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
+                          transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                          PaperProps={{
+                            sx: {
+                              p: 1,
+                              width: 140,
+                              '& .MuiMenuItem-root': {
+                                px: 1,
+                                typography: 'body2',
+                                borderRadius: 0.75,
+                              },
+                            },
+                          }}
+                        >
+                          <MenuItem>
+                            <Iconify icon={'eva:edit-fill'} sx={{ mr: 2 }} />
+                            Засах
+                          </MenuItem>
+                          <MenuItem
+                            onClick={() => {
+                              deleteCategory(_id);
+                            }}
+                            sx={{ color: 'error.main' }}
+                          >
+                            <Iconify icon={'eva:trash-2-outline'} sx={{ mr: 2 }} />
+                            Устгах
+                          </MenuItem>
+                        </Popover>
                       </TableRow>
                     );
                   })}
@@ -274,7 +306,7 @@ export default function UserPage() {
         </Card>
       </Container>
 
-      <Popover
+      {/* <Popover
         open={Boolean(open)}
         anchorEl={open}
         onClose={handleCloseMenu}
@@ -296,12 +328,11 @@ export default function UserPage() {
           <Iconify icon={'eva:edit-fill'} sx={{ mr: 2 }} />
           Засах
         </MenuItem>
-
         <MenuItem onClick={deleteCategory} sx={{ color: 'error.main' }}>
           <Iconify icon={'eva:trash-2-outline'} sx={{ mr: 2 }} />
           Устгах
         </MenuItem>
-      </Popover>
+      </Popover> */}
     </>
   );
 }
