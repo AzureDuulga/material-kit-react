@@ -22,7 +22,7 @@ export default function LoginForm() {
     try {
       const result = await axios.post('http://localhost:8000/users/login', { email, password });
       console.log(result);
-      setUser(result.data.user[0]);
+      setUser(result.data.user);
       navigate('/dashboard', { replace: true });
     } catch (err) {
       console.log(err);

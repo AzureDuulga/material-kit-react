@@ -3,8 +3,12 @@ import axios from 'axios';
 import { filter } from 'lodash';
 import { useEffect, useState } from 'react';
 // @mui
+import { Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
+import SaveIcon from '@mui/icons-material/Save';
 import {
   Card,
+  Box,
+  Modal,
   Table,
   Stack,
   Paper,
@@ -18,6 +22,7 @@ import {
   TableCell,
   Container,
   Typography,
+  TextField,
   IconButton,
   TableContainer,
   TablePagination,
@@ -38,8 +43,7 @@ const TABLE_HEAD = [
   { id: 'description', label: 'Тайлбар', alignRight: false },
   { id: 'categoryImg', label: 'Зураг', alignRight: false },
   { id: 'categoryRating', label: 'Үнэлгээ', alignRight: false },
-  { id: 'role', label: 'Role', alignRight: false },
-  { id: '', label: 'Ustgah' },
+  { id: 'role', label: 'Actions', alignRight: false },
 ];
 
 // ----------------------------------------------------------------------
@@ -72,22 +76,30 @@ function applySortFilter(array, comparator, query) {
   }
   return stabilizedThis.map((el) => el[0]);
 }
+const style = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 400,
+  bgcolor: 'background.paper',
+  border: '2px solid #000',
+  boxShadow: 24,
+  p: 4,
+};
 
 export default function UserPage() {
   const [category, setCategory] = useState([]);
   const [open, setOpen] = useState(null);
-
   const [page, setPage] = useState(0);
-
   const [order, setOrder] = useState('asc');
-
   const [selected, setSelected] = useState([]);
-
   const [orderBy, setOrderBy] = useState('name');
-
   const [filterName, setFilterName] = useState('');
-
   const [rowsPerPage, setRowsPerPage] = useState(2);
+  const [modalOpen, setModalOpen] = useState(false);
+  const ModalHandleOpen = () => setModalOpen(true);
+  const ModalHandleClose = () => setModalOpen(false);
 
   const handleOpenMenu = (event) => {
     setOpen(event.currentTarget);
@@ -162,7 +174,26 @@ export default function UserPage() {
 
   const deleteCategory = (e) => {
     console.log(e);
+    axios
+      .delete(`http://localhost:8000/category/${e}`)
+      .then((res) => {
+        console.log('Delete response===>', res);
+      })
+      .catch((err) => {
+        console.log('Delete ERROR==>', err);
+      });
   };
+  // const updateCategory = (e) => {
+  //   console.log(e);
+  //   axios
+  //     .put(`http://localhost:8000/category/${e}`)
+  //     .then((res) => {
+  //       console.log('Delete response===>', res);
+  //     })
+  //     .catch((err) => {
+  //       console.log('Delete ERROR==>', err);
+  //     });
+  // };
 
   return (
     <>
@@ -213,19 +244,15 @@ export default function UserPage() {
                             </Typography>
                           </Stack>
                         </TableCell>
-
                         <TableCell align="left">{description}</TableCell>
-
                         <TableCell align="left">url</TableCell>
-
                         <TableCell align="left">{categoryRate}</TableCell>
-
-                        <TableCell align="right">
+                        {/* <TableCell align="right">
                           <IconButton size="large" color="inherit" onClick={handleOpenMenu}>
                             <Iconify icon={'eva:more-vertical-fill'} />
                           </IconButton>
-                        </TableCell>
-                        <Popover
+                        </TableCell> */}
+                        {/* <Popover
                           open={Boolean(open)}
                           anchorEl={open}
                           onClose={handleCloseMenu}
@@ -242,11 +269,13 @@ export default function UserPage() {
                               },
                             },
                           }}
-                        >
-                          <MenuItem>
+                        > */}
+                        <TableCell>
+                          <MenuItem onClick={ModalHandleOpen} sx={{ backgroundColor: 'black' }}>
                             <Iconify icon={'eva:edit-fill'} sx={{ mr: 2 }} />
                             Засах
                           </MenuItem>
+
                           <MenuItem
                             onClick={() => {
                               deleteCategory(_id);
@@ -256,7 +285,8 @@ export default function UserPage() {
                             <Iconify icon={'eva:trash-2-outline'} sx={{ mr: 2 }} />
                             Устгах
                           </MenuItem>
-                        </Popover>
+                        </TableCell>
+                        {/* </Popover> */}
                       </TableRow>
                     );
                   })}
@@ -305,6 +335,34 @@ export default function UserPage() {
           />
         </Card>
       </Container>
+      <Modal
+        open={modalOpen}
+        onClose={ModalHandleClose}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box component="form" sx={style}>
+          <TextField margin="normal" required fullWidth id="title" label="Нэр" name="title" autoFocus />
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            name="description"
+            label="Тайлбар"
+            type="text"
+            id="description"
+          />
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            name="description"
+            label="Тайлбар"
+            type="description"
+            id="description"
+          />
+        </Box>
+      </Modal>
 
       {/* <Popover
         open={Boolean(open)}
