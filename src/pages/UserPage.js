@@ -3,8 +3,6 @@ import axios from 'axios';
 import { filter } from 'lodash';
 import { useEffect, useState } from 'react';
 // @mui
-import { Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
-import SaveIcon from '@mui/icons-material/Save';
 import {
   Card,
   Box,
@@ -14,7 +12,6 @@ import {
   Paper,
   Avatar,
   Button,
-  Popover,
   Checkbox,
   TableRow,
   MenuItem,
@@ -23,12 +20,10 @@ import {
   Container,
   Typography,
   TextField,
-  IconButton,
   TableContainer,
   TablePagination,
 } from '@mui/material';
 // components
-import Label from '../components/label';
 import Iconify from '../components/iconify';
 import Scrollbar from '../components/scrollbar';
 // sections
@@ -90,7 +85,7 @@ const style = {
 
 export default function UserPage() {
   const [category, setCategory] = useState([]);
-  const [open, setOpen] = useState(null);
+  // const [open, setOpen] = useState(null);
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState('asc');
   const [selected, setSelected] = useState([]);
@@ -98,16 +93,18 @@ export default function UserPage() {
   const [filterName, setFilterName] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(2);
   const [modalOpen, setModalOpen] = useState(false);
-  const ModalHandleOpen = () => setModalOpen(true);
+  const ModalHandleOpen = () => {
+    setModalOpen(true);
+  };
   const ModalHandleClose = () => setModalOpen(false);
 
-  const handleOpenMenu = (event) => {
-    setOpen(event.currentTarget);
-  };
+  // const handleOpenMenu = (event) => {
+  //   setOpen(event.currentTarget);
+  // };
 
-  const handleCloseMenu = () => {
-    setOpen(null);
-  };
+  // const handleCloseMenu = () => {
+  //   setOpen(null);
+  // };
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -183,17 +180,23 @@ export default function UserPage() {
         console.log('Delete ERROR==>', err);
       });
   };
-  // const updateCategory = (e) => {
-  //   console.log(e);
-  //   axios
-  //     .put(`http://localhost:8000/category/${e}`)
-  //     .then((res) => {
-  //       console.log('Delete response===>', res);
-  //     })
-  //     .catch((err) => {
-  //       console.log('Delete ERROR==>', err);
-  //     });
-  // };
+
+  const [selectedCategory, setSelectedCategory] = useState({});
+  const updateCategory = (_id, title, description, categoryImg, categoryRate) => {
+    console.log(_id, title, description, categoryImg, categoryRate);
+    setSelectedCategory({ _id, title, description, categoryImg, categoryRate });
+
+    // axios
+    //   .put(`http://localhost:8000/category/${e}`)
+    //   .then((res) => {
+    //     console.log('Delete response===>', res);
+    //   })
+    //   .catch((err) => {
+    //     console.log('Delete ERROR==>', err);
+    //   });
+  };
+
+  console.log(selectedCategory);
 
   return (
     <>
@@ -247,35 +250,16 @@ export default function UserPage() {
                         <TableCell align="left">{description}</TableCell>
                         <TableCell align="left">url</TableCell>
                         <TableCell align="left">{categoryRate}</TableCell>
-                        {/* <TableCell align="right">
-                          <IconButton size="large" color="inherit" onClick={handleOpenMenu}>
-                            <Iconify icon={'eva:more-vertical-fill'} />
-                          </IconButton>
-                        </TableCell> */}
-                        {/* <Popover
-                          open={Boolean(open)}
-                          anchorEl={open}
-                          onClose={handleCloseMenu}
-                          anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
-                          transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-                          PaperProps={{
-                            sx: {
-                              p: 1,
-                              width: 140,
-                              '& .MuiMenuItem-root': {
-                                px: 1,
-                                typography: 'body2',
-                                borderRadius: 0.75,
-                              },
-                            },
-                          }}
-                        > */}
                         <TableCell>
-                          <MenuItem onClick={ModalHandleOpen} sx={{ backgroundColor: 'black' }}>
+                          <MenuItem
+                            onClick={() => {
+                              updateCategory(_id, title, description, categoryImg, categoryRate);
+                              ModalHandleOpen(_id, title, description, categoryImg, categoryRate);
+                            }}
+                          >
                             <Iconify icon={'eva:edit-fill'} sx={{ mr: 2 }} />
                             Засах
                           </MenuItem>
-
                           <MenuItem
                             onClick={() => {
                               deleteCategory(_id);
@@ -325,7 +309,7 @@ export default function UserPage() {
           </Scrollbar>
 
           <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
+            // rowsPerPageOptions={[3, 5, 10, 25]}
             component="div"
             count={USERLIST.length}
             rowsPerPage={rowsPerPage}
@@ -342,6 +326,9 @@ export default function UserPage() {
         aria-describedby="modal-modal-description"
       >
         <Box component="form" sx={style}>
+          <Typography component="h1" variant="h5">
+            Категори шинэчилэх
+          </Typography>
           <TextField margin="normal" required fullWidth id="title" label="Нэр" name="title" autoFocus />
           <TextField
             margin="normal"
@@ -352,15 +339,11 @@ export default function UserPage() {
             type="text"
             id="description"
           />
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            name="description"
-            label="Тайлбар"
-            type="description"
-            id="description"
-          />
+          <TextField margin="normal" required fullWidth name="image" label="Зураг" type="text" id="image" />
+          <TextField margin="normal" required fullWidth name="Rating" label="Үнэлгээ" type="number" id="Rating" />
+          <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
+            Submit
+          </Button>
         </Box>
       </Modal>
 
