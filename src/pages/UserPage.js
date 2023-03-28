@@ -24,14 +24,13 @@ import {
   TablePagination,
 } from '@mui/material';
 // components
+import BasicModal from '../general/modal';
 import Iconify from '../components/iconify';
 import Scrollbar from '../components/scrollbar';
 // sections
 import { UserListHead, UserListToolbar } from '../sections/@dashboard/user';
 // mock
 import USERLIST from '../_mock/user';
-
-// ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
   { id: 'title', label: 'Нэр', alignRight: false },
@@ -40,8 +39,6 @@ const TABLE_HEAD = [
   { id: 'categoryRating', label: 'Үнэлгээ', alignRight: false },
   { id: 'role', label: 'Actions', alignRight: false },
 ];
-
-// ----------------------------------------------------------------------
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -84,8 +81,6 @@ const style = {
 };
 
 export default function UserPage() {
-  const [category, setCategory] = useState([]);
-  // const [open, setOpen] = useState(null);
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState('asc');
   const [selected, setSelected] = useState([]);
@@ -93,18 +88,7 @@ export default function UserPage() {
   const [filterName, setFilterName] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(2);
   const [modalOpen, setModalOpen] = useState(false);
-  const ModalHandleOpen = () => {
-    setModalOpen(true);
-  };
-  const ModalHandleClose = () => setModalOpen(false);
-
-  // const handleOpenMenu = (event) => {
-  //   setOpen(event.currentTarget);
-  // };
-
-  // const handleCloseMenu = () => {
-  //   setOpen(null);
-  // };
+  const [isNew, setIsNew] = useState(true);
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -151,23 +135,11 @@ export default function UserPage() {
   };
 
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - USERLIST.length) : 0;
-
   const filteredUsers = applySortFilter(USERLIST, getComparator(order, orderBy), filterName);
   const [fileteredCategory, setFilteredCategory] = useState([]);
   const isNotFound = !filteredUsers.length && !!filterName;
 
-  useEffect(() => {
-    axios
-      .get('http://localhost:8000/category/')
-      .then((res) => {
-        console.log('CAT IRLEE', res.data.categories);
-        setCategory(res.data.categories);
-        setFilteredCategory(res.data.categories);
-      })
-      .catch((err) => {
-        console.log('Err', err);
-      });
-  }, []);
+  const [selectedCategory, setSelectedCategory] = useState({});
 
   const deleteCategory = (e) => {
     console.log(e);
@@ -179,45 +151,66 @@ export default function UserPage() {
       .catch((err) => {
         console.log('Delete ERROR==>', err);
       });
+    loadCategories();
+  };
+  const loadCategories = () => {
+    axios
+      .get('http://localhost:8000/category/')
+      .then((res) => {
+        setFilteredCategory(res.data.categories);
+      })
+      .catch((err) => {
+        console.log('Err', err);
+      });
   };
 
-  const [selectedCategory, setSelectedCategory] = useState({});
-  const updateCategory = (_id, title, description, categoryImg, categoryRate) => {
-    console.log(_id, title, description, categoryImg, categoryRate);
-    setSelectedCategory({ _id, title, description, categoryImg, categoryRate });
-
-    // axios
-    //   .put(`http://localhost:8000/category/${e}`)
-    //   .then((res) => {
-    //     console.log('Delete response===>', res);
-    //   })
-    //   .catch((err) => {
-    //     console.log('Delete ERROR==>', err);
-    //   });
+  const updateCategory = () => {
+    const { _id } = selectedCategory;
+    console.log('OURR new', selectedCategory);
+    axios
+      .put(`http://localhost:8000/category/${_id}`, selectedCategory)
+      .then((res) => {
+        console.log('Updated category===>', selectedCategory);
+        loadCategories();
+      })
+      .catch((err) => {
+        console.log('Update ERROR==>', err);
+      });
+    setTestModal(!testModal);
   };
 
-  console.log(selectedCategory);
-
+  useEffect(() => {
+    loadCategories();
+  }, []);
+  const onChangeInput = (e) => {
+    const newItem = { ...selectedCategory, [e.target.name]: e.target.value };
+    setSelectedCategory(newItem);
+  };
+  const [testModal, setTestModal] = useState(false);
   return (
     <>
       <Helmet>
         <title> Azure Категори</title>
       </Helmet>
-
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
             Категори
           </Typography>
-          <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
+          <Button
+            variant="contained"
+            onClick={() => {
+              setTestModal(!testModal);
+              setIsNew(true);
+            }}
+            startIcon={<Iconify icon="eva:plus-fill" />}
+          >
             Шинэ Категори Үүсгэх
           </Button>
         </Stack>
-        {!category.length && <h4>Хоосон байна</h4>}
-
+        {!fileteredCategory.length && <h4>Хоосон байна</h4>}
         <Card>
           <UserListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
-
           <Scrollbar>
             <TableContainer sx={{ minWidth: 800 }}>
               <Table>
@@ -253,8 +246,9 @@ export default function UserPage() {
                         <TableCell>
                           <MenuItem
                             onClick={() => {
-                              updateCategory(_id, title, description, categoryImg, categoryRate);
-                              ModalHandleOpen(_id, title, description, categoryImg, categoryRate);
+                              setSelectedCategory(row);
+                              setIsNew(false);
+                              setTestModal(!testModal);
                             }}
                           >
                             <Iconify icon={'eva:edit-fill'} sx={{ mr: 2 }} />
@@ -270,7 +264,6 @@ export default function UserPage() {
                             Устгах
                           </MenuItem>
                         </TableCell>
-                        {/* </Popover> */}
                       </TableRow>
                     );
                   })}
@@ -280,7 +273,6 @@ export default function UserPage() {
                     </TableRow>
                   )}
                 </TableBody>
-
                 {isNotFound && (
                   <TableBody>
                     <TableRow>
@@ -319,61 +311,15 @@ export default function UserPage() {
           />
         </Card>
       </Container>
-      <Modal
-        open={modalOpen}
-        onClose={ModalHandleClose}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
-      >
-        <Box component="form" sx={style}>
-          <Typography component="h1" variant="h5">
-            Категори шинэчилэх
-          </Typography>
-          <TextField margin="normal" required fullWidth id="title" label="Нэр" name="title" autoFocus />
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            name="description"
-            label="Тайлбар"
-            type="text"
-            id="description"
-          />
-          <TextField margin="normal" required fullWidth name="image" label="Зураг" type="text" id="image" />
-          <TextField margin="normal" required fullWidth name="Rating" label="Үнэлгээ" type="number" id="Rating" />
-          <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
-            Submit
-          </Button>
-        </Box>
-      </Modal>
-
-      {/* <Popover
-        open={Boolean(open)}
-        anchorEl={open}
-        onClose={handleCloseMenu}
-        anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-        PaperProps={{
-          sx: {
-            p: 1,
-            width: 140,
-            '& .MuiMenuItem-root': {
-              px: 1,
-              typography: 'body2',
-              borderRadius: 0.75,
-            },
-          },
-        }}
-      >
-        <MenuItem>
-          <Iconify icon={'eva:edit-fill'} sx={{ mr: 2 }} />
-          Засах
-        </MenuItem>
-        <MenuItem onClick={deleteCategory} sx={{ color: 'error.main' }}>
-          <Iconify icon={'eva:trash-2-outline'} sx={{ mr: 2 }} />
-          Устгах
-        </MenuItem>
-      </Popover> */}
+      <BasicModal
+        testModal={testModal}
+        setTestModal={setTestModal}
+        isNew={isNew}
+        selectedCategory={selectedCategory}
+        onChangeInput={onChangeInput}
+        updateCategory={updateCategory}
+        loadCategories={loadCategories}
+      />
     </>
   );
 }
