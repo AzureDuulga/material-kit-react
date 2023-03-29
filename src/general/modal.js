@@ -43,6 +43,7 @@ export default function BasicModal({
       .then((res) => {
         console.log('New category===>', newCategory);
         loadCategories();
+        setTestModal(!testModal);
       })
       .catch((err) => {
         console.log('New ERROR==>', err);

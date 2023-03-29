@@ -1,7 +1,11 @@
 import PropTypes from 'prop-types';
+import { useState } from 'react';
+import axios from 'axios';
 // @mui
-import { Box, Card, Link, Typography, Stack } from '@mui/material';
+import { Box, Card, Link, Typography, Stack, MenuItem } from '@mui/material';
 import { styled } from '@mui/material/styles';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 // utils
 import { fCurrency } from '../../../utils/formatNumber';
 // components
@@ -24,54 +28,65 @@ ShopProductCard.propTypes = {
   product: PropTypes.object,
 };
 
-export default function ShopProductCard({ product }) {
-  const { name, cover, price, colors, status, priceSale } = product;
+export default function ShopProductCard({ travels, open, setOpen, setIsNew, loadTravels }) {
+  const { _id, title, travelImg, description, location, price, day } = travels;
+  const [selectedTravel, setSelectedTravel] = useState();
+  const deleteTravel = (e) => {
+    console.log(e);
+    axios
+      .delete(`http://localhost:8000/travel/${e}`)
+      .then((res) => {
+        console.log('Delete response===>', res);
+        loadTravels();
+      })
+      .catch((err) => {
+        console.log('Delete ERROR==>', err);
+      });
+  };
+  const updateTravel = () => {
+    const { _id } = selectedTravel;
+    console.log('OURR new', selectedTravel);
+    axios
+      .put(`http://localhost:8000/category/${_id}`, selectedTravel)
+      .then((res) => {
+        console.log('Updated category===>', selectedTravel);
+        loadTravels();
+      })
+      .catch((err) => {
+        console.log('Update ERROR==>', err);
+      });
+    setOpen(!open);
+  };
 
   return (
     <Card>
       <Box sx={{ pt: '100%', position: 'relative' }}>
-        {status && (
-          <Label
-            variant="filled"
-            color={(status === 'sale' && 'error') || 'info'}
-            sx={{
-              zIndex: 9,
-              top: 16,
-              right: 16,
-              position: 'absolute',
-              textTransform: 'uppercase',
-            }}
-          >
-            {status}
-          </Label>
-        )}
-        <StyledProductImg alt={name} src={cover} />
+        <StyledProductImg alt={title} src={travelImg} />
       </Box>
-
       <Stack spacing={2} sx={{ p: 3 }}>
         <Link color="inherit" underline="hover">
           <Typography variant="subtitle2" noWrap>
-            {name}
+            {title}
           </Typography>
         </Link>
-
-        <Stack direction="row" alignItems="center" justifyContent="space-between">
-          <ColorPreview colors={colors} />
-          <Typography variant="subtitle1">
-            <Typography
-              component="span"
-              variant="body1"
-              sx={{
-                color: 'text.disabled',
-                textDecoration: 'line-through',
+        <Box sx={{ display: 'flex ', justifyContent: 'space-between' }}>
+          <Typography>{price} </Typography>
+          <Box>
+            <EditIcon
+              onClick={() => {
+                setOpen(!open);
+                setIsNew(false);
               }}
-            >
-              {priceSale && fCurrency(priceSale)}
-            </Typography>
-            &nbsp;
-            {fCurrency(price)}
-          </Typography>
-        </Stack>
+              sx={{ color: 'black' }}
+            />
+            <DeleteIcon
+              onClick={() => {
+                deleteTravel(_id);
+              }}
+              sx={{ color: 'red' }}
+            />
+          </Box>
+        </Box>
       </Stack>
     </Card>
   );
