@@ -14,7 +14,15 @@ const style = {
 };
 
 export default function ProductModal({ open, setOpen, isNew }) {
-  const [newUpdateTrave, setNewUpdateTrave] = React.useState('');
+  const [newUpdateTravel, setNewUpdateTravel] = React.useState({
+    title: '',
+    travelImg: '',
+    description: '',
+    location: '',
+    price: '',
+    day: '',
+    category: '',
+  });
 
   return (
     <div>
@@ -87,6 +95,16 @@ export default function ProductModal({ open, setOpen, isNew }) {
             name="day"
             label="Хоног"
             type="number"
+            // // //   onChange={isNew ? onChangeAdd : onChangeInput}
+            //   value={isNew && selectedCategory?.categoryRate}
+          />
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            name="category"
+            label="Категори"
+            type=""
             // // //   onChange={isNew ? onChangeAdd : onChangeInput}
             //   value={isNew && selectedCategory?.categoryRate}
           />

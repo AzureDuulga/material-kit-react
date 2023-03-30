@@ -47,9 +47,9 @@ export default function ShopProductCard({ travels, open, setOpen, setIsNew, load
     const { _id } = selectedTravel;
     console.log('OURR new', selectedTravel);
     axios
-      .put(`http://localhost:8000/category/${_id}`, selectedTravel)
+      .put(`http://localhost:8000/travel/${_id}`, selectedTravel)
       .then((res) => {
-        console.log('Updated category===>', selectedTravel);
+        console.log('Updated travel===>', selectedTravel);
         loadTravels();
       })
       .catch((err) => {

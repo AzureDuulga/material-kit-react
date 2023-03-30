@@ -137,7 +137,6 @@ export default function UserPage() {
   const filteredUsers = applySortFilter(USERLIST, getComparator(order, orderBy), filterName);
   const [fileteredCategory, setFilteredCategory] = useState([]);
   const isNotFound = !filteredUsers.length && !!filterName;
-
   const [selectedCategory, setSelectedCategory] = useState({});
 
   const deleteCategory = (e) => {
